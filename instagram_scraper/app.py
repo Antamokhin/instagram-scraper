@@ -579,7 +579,7 @@ class InstagramScraper(object):
             node['urls'] = []
         if node['is_video'] and 'video_url' in node:
             node['urls'] = [node['video_url']]
-        elif '__typename' in node and node['__typename'] == 'GraphImage':
+        elif 'display_url' in node or ('__typename' in node and node['__typename'] == 'GraphImage'):
             node['urls'] = [self.get_original_image(node['display_url'])]
         else:
             if details is None:
