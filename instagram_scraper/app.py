@@ -1107,7 +1107,7 @@ class InstagramScraper(object):
                                         #on 410 error see issue #343
                                         #instagram don't lie on this
                                         break
-                                    if response.status_code == 403 and url != full_url:
+                                    if (response.status_code == 403 or response.status_code == 503) and url != full_url:
                                         #see issue #254
                                         url = full_url
                                         continue
