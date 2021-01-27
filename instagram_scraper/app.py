@@ -96,7 +96,7 @@ class InstagramScraper(object):
                             media_types=['image', 'video', 'story-image', 'story-video', 'broadcast'],
                             tag=False, location=False, search_location=False, comments=False,
                             verbose=0, include_location=False, filter=None, proxies={}, no_check_certificate=False,
-                                                        template='{urlname}', log_destination='')
+                            template='{urlname}', log_destination='')
 
         allowed_attr = list(default_attr.keys())
         default_attr.update(kwargs)
@@ -476,8 +476,8 @@ class InstagramScraper(object):
                         if item.get("location") is None or self.get_key_from_value(self.filter_locations, item["location"].get("id")) is None:
                             continue
                     if ((item['is_video'] is False and 'image' in self.media_types) or \
-                                (item['is_video'] is True and 'video' in self.media_types)
-                        ) and self.is_new_media(item):
+                        (item['is_video'] is True and 'video' in self.media_types)
+                    ) and self.is_new_media(item):
                         future = executor.submit(self.worker_wrapper, self.download, item, dst)
                         future_to_item[future] = item
 
@@ -574,7 +574,6 @@ class InstagramScraper(object):
         if self.include_location and 'location' not in node:
             details = self.__get_media_details(node['shortcode'])
             node['location'] = details.get('location') if details else None
-
         if 'urls' not in node:
             node['urls'] = []
         if node['is_video'] and 'video_url' in node:
@@ -639,8 +638,8 @@ class InstagramScraper(object):
                         'Error getting user details for {0}. Please verify that the user exists.'.format(username))
                     continue
                 elif user and user['is_private'] and user['edge_owner_to_timeline_media']['count'] > 0 and not \
-                    user['edge_owner_to_timeline_media']['edges']:
-                        self.logger.info('User {0} is private'.format(username))
+                        user['edge_owner_to_timeline_media']['edges']:
+                    self.logger.info('User {0} is private'.format(username))
 
                 self.rhx_gis = ""
 
@@ -711,8 +710,8 @@ class InstagramScraper(object):
                 self.logger.warning('Failed to get high resolution profile picture for {0}'.format(username))
                 profile_pic_url = user['profile_pic_url_hd']
         else:
-                # If not logged_in take the Low-Resolution profile picture
-                profile_pic_url = user['profile_pic_url_hd']
+            # If not logged_in take the Low-Resolution profile picture
+            profile_pic_url = user['profile_pic_url_hd']
 
         item = {'urls': [profile_pic_url], 'username': username, 'shortcode':'', 'created_time': 1286323200, '__typename': 'GraphProfilePic'}
 
@@ -907,7 +906,7 @@ class InstagramScraper(object):
                     stories.extend(self.__fetch_stories(HIGHLIGHT_STORIES_REEL_ID_URL.format('%22%2C%22'.join(str(x) for x in ids_chunk)), fetching_highlights_metadata=True))
 
                 return stories
-              
+
         return []
 
     def fetch_broadcasts(self, user_id):
@@ -1074,11 +1073,11 @@ class InstagramScraper(object):
 
         if self.filter_locations:
             save_dir = os.path.join(save_dir, self.get_key_from_value(self.filter_locations, item["location"]["id"]))
-        
+
         files_path = []
 
         for full_url, base_name in self.templatefilename(item):
-            url = full_url.split('?')[0] #try the static url first, stripping parameters
+            url = full_url #try the static url first, stripping parameters
 
             file_path = os.path.join(save_dir, base_name)
 
@@ -1107,9 +1106,9 @@ class InstagramScraper(object):
                                         #on 410 error see issue #343
                                         #instagram don't lie on this
                                         break
-                                    if (response.status_code == 403 or response.status_code == 503) and url != full_url:
+                                    if (response.status_code == 403 or response.status_code == 503) and url == full_url:
                                         #see issue #254
-                                        url = full_url
+                                        url = full_url.split('?')[0] #try the static url first, stripping parameters
                                         continue
                                     response.raise_for_status()
 
@@ -1224,19 +1223,19 @@ class InstagramScraper(object):
             try:
                 template = self.template
                 template_values = {
-                                    'username' : item['username'],
-                                   'urlname': filename,
-                                    'shortcode': str(item['shortcode']),
-                                    'mediatype' : item['__typename'][5:],
-                                   'datetime': time.strftime('%Y%m%d %Hh%Mm%Ss',
-                                                             time.localtime(self.__get_timestamp(item))),
-                                   'date': time.strftime('%Y%m%d', time.localtime(self.__get_timestamp(item))),
-                                   'year': time.strftime('%Y', time.localtime(self.__get_timestamp(item))),
-                                   'month': time.strftime('%m', time.localtime(self.__get_timestamp(item))),
-                                   'day': time.strftime('%d', time.localtime(self.__get_timestamp(item))),
-                                   'h': time.strftime('%Hh', time.localtime(self.__get_timestamp(item))),
-                                   'm': time.strftime('%Mm', time.localtime(self.__get_timestamp(item))),
-                                   's': time.strftime('%Ss', time.localtime(self.__get_timestamp(item)))}
+                    'username' : item['username'],
+                    'urlname': filename,
+                    'shortcode': str(item['shortcode']),
+                    'mediatype' : item['__typename'][5:],
+                    'datetime': time.strftime('%Y%m%d %Hh%Mm%Ss',
+                                              time.localtime(self.__get_timestamp(item))),
+                    'date': time.strftime('%Y%m%d', time.localtime(self.__get_timestamp(item))),
+                    'year': time.strftime('%Y', time.localtime(self.__get_timestamp(item))),
+                    'month': time.strftime('%m', time.localtime(self.__get_timestamp(item))),
+                    'day': time.strftime('%d', time.localtime(self.__get_timestamp(item))),
+                    'h': time.strftime('%Hh', time.localtime(self.__get_timestamp(item))),
+                    'm': time.strftime('%Mm', time.localtime(self.__get_timestamp(item))),
+                    's': time.strftime('%Ss', time.localtime(self.__get_timestamp(item)))}
 
                 customfilename = str(template.format(**template_values) + extension)
                 yield url, customfilename
@@ -1377,7 +1376,7 @@ class InstagramScraper(object):
     @staticmethod
     def get_locations_from_file(locations_file):
         """
-        parse an ini like file with sections composed of headers, [locaiton], 
+        parse an ini like file with sections composed of headers, [locaiton],
         and arguments that are location ids
         """
         locations={}
@@ -1563,7 +1562,7 @@ def main():
         locations.setdefault('', [])
         locations[''] = InstagramScraper.parse_delimited_str(','.join(args.filter_location))
         args.filter_locations = locations
-        
+
     if args.media_types and len(args.media_types) == 1 and re.compile(r'[,;\s]+').findall(args.media_types[0]):
         args.media_types = InstagramScraper.parse_delimited_str(args.media_types[0])
 
